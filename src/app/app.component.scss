@@ -1,0 +1,29 @@
+h1 {
+  margin: 3% 0;
+  text-align: center;
+}
+
+main,
+#loading {
+  text-align: center;
+  justify-content: center;
+  flex-grow: 1;
+}
+
+footer {
+  padding: 1rem;
+}
+
+video,
+img {
+  display: block;
+  margin: 1rem auto;
+  width: 100%;
+  max-width: 500px;
+}
+
+.site {
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
+}
