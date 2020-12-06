@@ -10,15 +10,17 @@ import { createFFmpeg, fetchFile } from '@ffmpeg/ffmpeg';
 })
 export class AppComponent {
   ffmpegLoaded = false;
+  video: File;
   videoURL: SafeUrl;
   gifURL: SafeUrl;
-  video: File;
+  gifFilename: string;
   private ffmpeg = createFFmpeg({ log: true });
 
   constructor(private sanitizer: DomSanitizer) {
     this.load();
   }
 
+  /** Get the video file from the input and extract the required data */
   setVideo(e: Event) {
     const input = e.target as HTMLInputElement;
     if (!input.files || !input.files.length || input.files.item(0) === this.video) {
@@ -28,13 +30,14 @@ export class AppComponent {
     this.gifURL = null;
     this.video = input.files.item(0);
     this.videoURL = this.sanitizer.bypassSecurityTrustUrl(URL.createObjectURL(this.video));
+    this.setGifFilename(this.video.name);
   }
 
-  // Convert the video file to a gif
+  /** Convert the video file to a gif */
   // Documentation:
   // https://medium.com/@colten_jackson/doing-the-gif-thing-on-debian-82b9760a8483
   // http://blog.pkh.me/p/21-high-quality-gif-with-ffmpeg.html
-  convertToGif = async () => {
+  async convertToGif() {
     if (!this.video) {
       alert('Please upload a video file');
       return;
@@ -64,8 +67,15 @@ export class AppComponent {
     })));
   }
 
-  private load = async () => {
+  /** Load ffmpeg.wasm */
+  private async load() {
     await this.ffmpeg.load();
     this.ffmpegLoaded = true;
+  }
+
+  /** Set the gif filename to the input name with the extension changed to .gif */
+  private setGifFilename(inputFilename: string) {
+    const pos = inputFilename.lastIndexOf('.') || inputFilename.length;
+    this.gifFilename = inputFilename.substr(0, pos) + '.gif';
   }
 }

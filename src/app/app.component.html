@@ -29,7 +29,7 @@
     </button>
 
     <div *ngIf="gifURL">
-      <a hidden="true" [href]="gifURL" download #imageLink></a>
+      <a hidden="true" [href]="gifURL" [download]="gifFilename" #imageLink></a>
       <img [src]="gifURL" alt="Converted gif" />
       <button mat-raised-button (click)="imageLink.click()">
         <mat-icon>get_app</mat-icon>
