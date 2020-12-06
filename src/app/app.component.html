@@ -12,7 +12,8 @@
       #videoInput
     />
     <button mat-raised-button color="primary" (click)="videoInput.click()">
-      Select Video File
+      <mat-icon>publish</mat-icon>
+      Upload Video File
     </button>
 
     <video controls [src]="videoURL" *ngIf="videoURL"></video>
@@ -23,6 +24,7 @@
       *ngIf="video"
       (click)="convertToGif()"
     >
+      <mat-icon>gif</mat-icon>
       Convert
     </button>
 
@@ -31,7 +33,7 @@
       <img [src]="gifURL" alt="Converted gif" />
       <button mat-raised-button (click)="imageLink.click()">
         <mat-icon>get_app</mat-icon>
-        Download Image
+        Download Gif
       </button>
     </div>
   </main>
