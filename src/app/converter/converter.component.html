@@ -18,15 +18,29 @@
 
   <video controls [src]="videoURL" *ngIf="videoURL"></video>
 
-  <button
-    mat-raised-button
-    color="accent"
-    *ngIf="video"
-    (click)="convertToGif()"
-  >
-    <mat-icon>gif</mat-icon>
-    Convert
-  </button>
+  <div *ngIf="video">
+    <button
+      mat-raised-button
+      color="accent"
+      [disabled]="gifURL || conversionInProgress"
+      (click)="convertToGif()"
+    >
+      <mat-icon>gif</mat-icon>
+      Convert
+    </button>
+
+    <button mat-icon-button>
+      <mat-icon>settings</mat-icon>
+    </button>
+  </div>
+
+  <div id="conversion-progress" *ngIf="conversionInProgress">
+    <p [textContent]="progressMessage"></p>
+    <mat-progress-bar
+      [mode]="progressBarMode"
+      [value]="progressBarValue"
+    ></mat-progress-bar>
+  </div>
 
   <div *ngIf="gifURL">
     <a hidden="true" [href]="gifURL" [download]="gifFilename" #imageLink></a>

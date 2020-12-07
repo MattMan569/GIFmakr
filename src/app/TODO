@@ -2,12 +2,9 @@
   1.1 Toggle loop, loop amount
   1.2 Framerate
   1.3 Dimensions, maintain aspect ratio option
-2. Progress bars
-  2.1 Indeterminate when loading ffmpeg and creating palette
-  2.2 Determinate when creating gif
 3. Allow the conversion of multiple files at once
   3.1 Create a list of files on UI
   3.2 Convert files one at a time down the list
   3.3 Convert all button or individual convert button
-  3.4 Cancel conversion button
-4. Maintain file name
+  3.4 Download all or individual download button
+  3.4 Cancel conversion button, finishes current then stops

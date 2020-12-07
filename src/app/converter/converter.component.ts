@@ -1,22 +1,29 @@
 import { Component, OnInit } from '@angular/core';
 import { DomSanitizer, SafeUrl } from '@angular/platform-browser';
-import { createFFmpeg, fetchFile } from '@ffmpeg/ffmpeg';
+import { createFFmpeg, fetchFile, FFmpeg } from '@ffmpeg/ffmpeg';
 
 @Component({
   selector: 'app-converter',
   templateUrl: './converter.component.html',
   styleUrls: ['./converter.component.scss']
 })
-export class ConverterComponent {
+export class ConverterComponent implements OnInit {
   ffmpegLoaded = false;
-  conversionInProgress = false;
   video: File;
   videoURL: SafeUrl;
+  conversionInProgress = false;
   gifURL: SafeUrl;
   gifFilename: string;
-  private ffmpeg = createFFmpeg({ log: true });
+  progressBarMode: 'determinate' | 'indeterminate';
+  progressBarValue: number;
+  progressMessage: string;
+  private ffmpeg: FFmpeg;
+  private videoLength: number;
 
-  constructor(private sanitizer: DomSanitizer) {
+  constructor(private sanitizer: DomSanitizer) { }
+
+  ngOnInit() {
+    this.ffmpeg = createFFmpeg({ logger: this.ffmpegLogger });
     this.load();
   }
 
@@ -28,6 +35,7 @@ export class ConverterComponent {
     }
 
     this.gifURL = null;
+    this.videoLength = null;
     this.video = input.files.item(0);
     this.videoURL = this.sanitizer.bypassSecurityTrustUrl(URL.createObjectURL(this.video));
     this.setGifFilename(this.video.name);
@@ -43,10 +51,12 @@ export class ConverterComponent {
       return;
     }
 
-    this.conversionInProgress = true;
-
     try {
+      this.conversionInProgress = true;
       this.ffmpeg.FS('writeFile', 'video', await fetchFile(this.video));
+
+      this.progressBarMode = 'indeterminate';
+      this.progressMessage = 'Creating palette';
 
       // Generate the custom palette
       // Required for decent quality gifs
@@ -55,6 +65,10 @@ export class ConverterComponent {
         '-vf', 'fps=15,scale=600:-1:flags=lanczos,palettegen',
         'palette.png'
       );
+
+      this.progressBarMode = 'determinate';
+      this.progressBarValue = 0;
+      this.progressMessage = 'Converting to gif';
 
       // Convert the video to a gif using the custom palette
       await this.ffmpeg.run(
@@ -86,5 +100,37 @@ export class ConverterComponent {
   private setGifFilename(inputFilename: string) {
     const pos = inputFilename.lastIndexOf('.') || inputFilename.length;
     this.gifFilename = inputFilename.substr(0, pos) + '.gif';
+  }
+
+  /** Use the logger to get data about the current conversion */
+  private ffmpegLogger = ({ message }: { type: string, message: string }) => {
+    // console.log('LOG', message);
+
+    // Get the length of the video
+    if (!this.videoLength) {
+      // Format is "Duration: hh:mm:ss.ms,"
+      if (message.includes('Duration: ')) {
+        const begin = message.indexOf(':') + 2; // +2 to remove : and space
+        const end = message.indexOf(',');
+        const time = message.slice(begin, end); // hh:mm:ss.ms
+        this.videoLength = this.toSeconds(time);
+      }
+    }
+
+    // Update the progress bar
+    if (this.conversionInProgress && this.progressBarMode === 'determinate') {
+      if (message.includes('time=')) {
+        const begin = message.indexOf('time=') + 5; // +1 to remove "time="
+        const end = message.indexOf('bitrate') - 1; // -1 to remove preceeding space
+        const time = message.slice(begin, end);
+        this.progressBarValue = this.toSeconds(time) / this.videoLength * 100;
+      }
+    }
+  }
+
+  /** Converts a time from hh:mm:ss format to seconds */
+  private toSeconds(time: string) {
+    const arr = (time.split(':')).map((str) => Number(str));
+    return arr[0] * 3600 + arr[1] * 60 + arr[2] * 1;
   }
 }
