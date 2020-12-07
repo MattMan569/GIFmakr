@@ -1,31 +1,41 @@
-<input
-  hidden="true"
-  type="file"
-  accept="video/*"
-  (change)="setVideo($event)"
-  #videoInput
-/>
-<button mat-raised-button color="primary" (click)="videoInput.click()">
-  <mat-icon>publish</mat-icon>
-  Upload Video File
-</button>
-
-<video controls [src]="videoURL" *ngIf="videoURL"></video>
-
-<button mat-raised-button color="accent" *ngIf="video" (click)="convertToGif()">
-  <mat-icon>gif</mat-icon>
-  Convert
-</button>
-
-<div *ngIf="gifURL">
-  <a hidden="true" [href]="gifURL" [download]="gifFilename" #imageLink></a>
-  <img [src]="gifURL" alt="Converted gif" />
-  <button mat-raised-button (click)="imageLink.click()">
-    <mat-icon>get_app</mat-icon>
-    Download Gif
+<div id="converter" *ngIf="ffmpegLoaded; else loadingDiv">
+  <input
+    hidden="true"
+    type="file"
+    accept="video/*"
+    (change)="setVideo($event)"
+    #videoInput
+  />
+  <button mat-raised-button color="primary" (click)="videoInput.click()">
+    <mat-icon>publish</mat-icon>
+    Upload Video File
   </button>
+
+  <video controls [src]="videoURL" *ngIf="videoURL"></video>
+
+  <button
+    mat-raised-button
+    color="accent"
+    *ngIf="video"
+    (click)="convertToGif()"
+  >
+    <mat-icon>gif</mat-icon>
+    Convert
+  </button>
+
+  <div *ngIf="gifURL">
+    <a hidden="true" [href]="gifURL" [download]="gifFilename" #imageLink></a>
+    <img [src]="gifURL" alt="Converted gif" />
+    <button mat-raised-button (click)="imageLink.click()">
+      <mat-icon>get_app</mat-icon>
+      Download Gif
+    </button>
+  </div>
 </div>
 
-<ng-template #loading>
-  <h2 id="loading">Loading FFmpeg...</h2>
+<ng-template #loadingDiv>
+  <div>
+    <h2>Loading FFmpeg...</h2>
+    <mat-progress-bar mode="buffer"></mat-progress-bar>
+  </div>
 </ng-template>
