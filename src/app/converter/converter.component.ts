@@ -9,6 +9,7 @@ import { createFFmpeg, fetchFile } from '@ffmpeg/ffmpeg';
 })
 export class ConverterComponent {
   ffmpegLoaded = false;
+  conversionInProgress = false;
   video: File;
   videoURL: SafeUrl;
   gifURL: SafeUrl;
@@ -42,28 +43,37 @@ export class ConverterComponent {
       return;
     }
 
-    this.ffmpeg.FS('writeFile', 'video', await fetchFile(this.video));
+    this.conversionInProgress = true;
 
-    // Generate the custom palette
-    // Required for decent quality gifs
-    await this.ffmpeg.run(
-      '-i', 'video',
-      '-vf', 'fps=15,scale=600:-1:flags=lanczos,palettegen',
-      'palette.png'
-    );
+    try {
+      this.ffmpeg.FS('writeFile', 'video', await fetchFile(this.video));
 
-    // Convert the video to a gif using the custom palette
-    await this.ffmpeg.run(
-      '-i', 'video',
-      '-i', 'palette.png',
-      '-filter_complex', 'fps=15,scale=600:-1:flags=lanczos[x];[x] [1:v]paletteuse',
-      'out.gif'
-    );
+      // Generate the custom palette
+      // Required for decent quality gifs
+      await this.ffmpeg.run(
+        '-i', 'video',
+        '-vf', 'fps=15,scale=600:-1:flags=lanczos,palettegen',
+        'palette.png'
+      );
 
-    const data = this.ffmpeg.FS('readFile', 'out.gif');
-    this.gifURL = this.sanitizer.bypassSecurityTrustUrl(URL.createObjectURL(new Blob([data.buffer], {
-      type: 'image/gif',
-    })));
+      // Convert the video to a gif using the custom palette
+      await this.ffmpeg.run(
+        '-i', 'video',
+        '-i', 'palette.png',
+        '-filter_complex', 'fps=15,scale=600:-1:flags=lanczos[x];[x] [1:v]paletteuse',
+        'out.gif'
+      );
+
+      const data = this.ffmpeg.FS('readFile', 'out.gif');
+      this.gifURL = this.sanitizer.bypassSecurityTrustUrl(URL.createObjectURL(new Blob([data.buffer], {
+        type: 'image/gif',
+      })));
+
+      this.conversionInProgress = false;
+    } catch (error) {
+      console.error(error);
+      this.conversionInProgress = false;
+    }
   }
 
   /** Load ffmpeg.wasm */
