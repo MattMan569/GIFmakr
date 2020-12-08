@@ -55,8 +55,11 @@
 </div>
 
 <ng-template #loadingDiv>
-  <div>
+  <div *ngIf="!ffmpegError">
     <h2>Loading FFmpeg...</h2>
     <mat-progress-bar mode="buffer"></mat-progress-bar>
+  </div>
+  <div *ngIf="ffmpegError">
+    <h3>Your browser is not supported. Please try using Chrome or Edge.</h3>
   </div>
 </ng-template>

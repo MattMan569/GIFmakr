@@ -9,6 +9,7 @@ import { createFFmpeg, fetchFile, FFmpeg } from '@ffmpeg/ffmpeg';
 })
 export class ConverterComponent implements OnInit {
   ffmpegLoaded = false;
+  ffmpegError: string;
   video: File;
   videoURL: SafeUrl;
   conversionInProgress = false;
@@ -92,8 +93,13 @@ export class ConverterComponent implements OnInit {
 
   /** Load ffmpeg.wasm */
   private async load() {
-    await this.ffmpeg.load();
-    this.ffmpegLoaded = true;
+    try {
+      await this.ffmpeg.load();
+      this.ffmpegLoaded = true;
+    } catch (error) {
+      this.ffmpegError = error;
+      console.error('[FFmpeg load error]', error);
+    }
   }
 
   /** Set the gif filename to the input name with the extension changed to .gif */
