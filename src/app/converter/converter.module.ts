@@ -11,13 +11,13 @@ import { ConverterConfigComponent } from './converter-config/converter-config.co
 @NgModule({
   declarations: [
     ConverterComponent,
-    ConverterConfigComponent
+    ConverterConfigComponent,
   ],
   imports: [
     CommonModule,
     ConverterRoutingModule,
     AngularMaterialModule,
-    ReactiveFormsModule
-  ]
+    ReactiveFormsModule,
+  ],
 })
 export class ConverterModule { }

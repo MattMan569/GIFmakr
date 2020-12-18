@@ -21,6 +21,6 @@ import { MatTooltipModule } from '@angular/material/tooltip';
     MatSliderModule,
     MatCheckboxModule,
     MatTooltipModule,
-  ]
+  ],
 })
 export class AngularMaterialModule { }

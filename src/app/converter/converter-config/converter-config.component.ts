@@ -7,7 +7,7 @@ import { ConfigData } from './../converter.model';
 @Component({
   selector: 'app-converter-config',
   templateUrl: './converter-config.component.html',
-  styleUrls: ['./converter-config.component.scss']
+  styleUrls: ['./converter-config.component.scss'],
 })
 export class ConverterConfigComponent implements OnInit {
   form: FormGroup;
@@ -15,7 +15,7 @@ export class ConverterConfigComponent implements OnInit {
 
   constructor(
     @Inject(MAT_DIALOG_DATA) public input: ConfigData,
-    private dialogRef: MatDialogRef<ConverterConfigComponent>
+    private dialogRef: MatDialogRef<ConverterConfigComponent>,
   ) { }
 
   ngOnInit(): void {
@@ -28,9 +28,9 @@ export class ConverterConfigComponent implements OnInit {
           validators: [
             Validators.required,
             Validators.max(this.input.videoDuration),
-            Validators.min(0)
-          ]
-        }
+            Validators.min(0),
+          ],
+        },
       ),
       gifDuration: new FormControl(
         this.input.gifDuration,
@@ -39,8 +39,8 @@ export class ConverterConfigComponent implements OnInit {
             Validators.required,
             Validators.max(this.input.videoDuration),
             Validators.min(0),
-          ]
-        }
+          ],
+        },
       ),
       gifFrameRate: new FormControl(
         this.input.gifFrameRate,
@@ -48,9 +48,9 @@ export class ConverterConfigComponent implements OnInit {
           validators: [
             Validators.required,
             Validators.max(this.input.videoFrameRate),
-            Validators.min(1)
-          ]
-        }
+            Validators.min(1),
+          ],
+        },
       ),
       maintainAspectRatio: new FormControl(this.input.maintainAspectRatio),
       gifWidth: new FormControl(
@@ -59,8 +59,8 @@ export class ConverterConfigComponent implements OnInit {
           validators: [
             Validators.required,
             Validators.min(1),
-          ]
-        }
+          ],
+        },
       ),
       gifHeight: new FormControl(
         this.input.gifHeight,
@@ -68,8 +68,8 @@ export class ConverterConfigComponent implements OnInit {
           validators: [
             Validators.required,
             Validators.min(1),
-          ]
-        }
+          ],
+        },
       ),
       enableLooping: new FormControl(this.input.enableLooping),
     });

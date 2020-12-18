@@ -12,7 +12,7 @@ import { VideoMetadata, ConfigData } from './converter.model';
 @Component({
   selector: 'app-converter',
   templateUrl: './converter.component.html',
-  styleUrls: ['./converter.component.scss']
+  styleUrls: ['./converter.component.scss'],
 })
 export class ConverterComponent implements OnInit {
   ffmpegLoaded = false;
@@ -104,7 +104,7 @@ export class ConverterComponent implements OnInit {
         '-t', `${this.config.gifDuration}`,
         '-i', 'video',
         '-vf', `fps=${this.config.gifFrameRate},scale=600:-1:flags=lanczos,palettegen`,
-        'palette.png'
+        'palette.png',
       );
 
       this.progressBarMode = 'determinate';
@@ -119,7 +119,7 @@ export class ConverterComponent implements OnInit {
         '-i', 'palette.png',
         '-filter_complex', `fps=${this.config.gifFrameRate},scale=${this.config.gifWidth}:${this.config.gifHeight}:flags=lanczos[x];[x] [1:v]paletteuse`,
         '-loop', `${this.config.enableLooping ? 0 : -1}`,
-        'out.gif'
+        'out.gif',
       );
 
       const data = this.ffmpeg.FS('readFile', 'out.gif');

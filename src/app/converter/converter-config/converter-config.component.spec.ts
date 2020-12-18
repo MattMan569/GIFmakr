@@ -8,7 +8,7 @@ describe('ConverterConfigComponent', () => {
 
   beforeEach(async(() => {
     TestBed.configureTestingModule({
-      declarations: [ ConverterConfigComponent ]
+      declarations: [ ConverterConfigComponent ],
     })
     .compileComponents();
   }));

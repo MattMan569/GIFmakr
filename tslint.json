@@ -55,6 +55,13 @@
         "named": "never"
       }
     },
+    "trailing-comma": [
+      true,
+      {
+        "singleline": "never",
+        "multiline": "always"
+      }
+    ],
     "typedef-whitespace": {
       "options": [
         {
