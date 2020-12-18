@@ -84,6 +84,8 @@ export class ConverterComponent implements OnInit {
   // Documentation:
   // https://medium.com/@colten_jackson/doing-the-gif-thing-on-debian-82b9760a8483
   // http://blog.pkh.me/p/21-high-quality-gif-with-ffmpeg.html
+  // https://superuser.com/questions/556029/how-do-i-convert-a-video-to-gif-using-ffmpeg-with-reasonable-quality
+  // https://superuser.com/a/1323430
   async convertToGif() {
     if (!this.video) {
       alert('Please upload a video file');
