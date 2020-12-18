@@ -1,6 +1,13 @@
 import { Component, OnInit } from '@angular/core';
+import { MatDialog } from '@angular/material/dialog';
 import { DomSanitizer, SafeUrl } from '@angular/platform-browser';
+
 import { createFFmpeg, fetchFile, FFmpeg } from '@ffmpeg/ffmpeg';
+import MediaInfoFactory from 'mediainfo.js';
+import { GetSizeFunc, MediaInfo, ReadChunkFunc } from 'mediainfo.js/dist/types';
+
+import { ConverterConfigComponent } from './converter-config/converter-config.component';
+import { VideoMetadata, ConfigData } from './converter.model';
 
 @Component({
   selector: 'app-converter',
@@ -19,27 +26,58 @@ export class ConverterComponent implements OnInit {
   progressBarValue: number;
   progressMessage: string;
   private ffmpeg: FFmpeg;
-  private videoLength: number;
+  private videoMetadata: VideoMetadata;
+  private config: ConfigData;
 
-  constructor(private sanitizer: DomSanitizer) { }
+  constructor(private sanitizer: DomSanitizer, private dialog: MatDialog) { }
 
   ngOnInit() {
-    this.ffmpeg = createFFmpeg({ logger: this.ffmpegLogger });
+    this.ffmpeg = createFFmpeg({ progress: this.ffmpegProgress });
     this.load();
+    this.videoMetadata = {} as VideoMetadata;
   }
 
   /** Get the video file from the input and extract the required data */
-  setVideo(e: Event) {
+  async setVideo(e: Event) {
     const input = e.target as HTMLInputElement;
     if (!input.files || !input.files.length || input.files.item(0) === this.video) {
       return;
     }
 
     this.gifURL = null;
-    this.videoLength = null;
     this.video = input.files.item(0);
+
+    try {
+      this.videoMetadata = await this.getMetadata(await MediaInfoFactory({ format: 'object' }));
+    } catch (error) {
+      console.warn('Unable to get video metadata\n', error);
+    }
+
+    this.config = {
+      ...this.videoMetadata,
+      gifStart: 0,
+      gifDuration: this.videoMetadata.videoDuration,
+      gifFrameRate: this.videoMetadata.videoFrameRate,
+      maintainAspectRatio: true,
+      gifHeight: this.videoMetadata.videoHeight,
+      gifWidth: this.videoMetadata.videoWidth,
+      enableLooping: true,
+    };
     this.videoURL = this.sanitizer.bypassSecurityTrustUrl(URL.createObjectURL(this.video));
     this.setGifFilename(this.video.name);
+  }
+
+  openConfigDialog() {
+    const dialogRef = this.dialog.open(ConverterConfigComponent, { data: this.config });
+
+    dialogRef.afterClosed().subscribe((result: ConfigData) => {
+      if (!result) {
+        return;
+      }
+
+      console.log(result);
+      this.config = result;
+    });
   }
 
   /** Convert the video file to a gif */
@@ -62,8 +100,10 @@ export class ConverterComponent implements OnInit {
       // Generate the custom palette
       // Required for decent quality gifs
       await this.ffmpeg.run(
+        '-ss', `${this.config.gifStart}`,
+        '-t', `${this.config.gifDuration}`,
         '-i', 'video',
-        '-vf', 'fps=15,scale=600:-1:flags=lanczos,palettegen',
+        '-vf', `fps=${this.config.gifFrameRate},scale=600:-1:flags=lanczos,palettegen`,
         'palette.png'
       );
 
@@ -73,9 +113,12 @@ export class ConverterComponent implements OnInit {
 
       // Convert the video to a gif using the custom palette
       await this.ffmpeg.run(
+        '-ss', `${this.config.gifStart}`,
+        '-t', `${this.config.gifDuration}`,
         '-i', 'video',
         '-i', 'palette.png',
-        '-filter_complex', 'fps=15,scale=600:-1:flags=lanczos[x];[x] [1:v]paletteuse',
+        '-filter_complex', `fps=${this.config.gifFrameRate},scale=${this.config.gifWidth}:${this.config.gifHeight}:flags=lanczos[x];[x] [1:v]paletteuse`,
+        '-loop', `${this.config.enableLooping ? 0 : -1}`,
         'out.gif'
       );
 
@@ -108,35 +151,41 @@ export class ConverterComponent implements OnInit {
     this.gifFilename = inputFilename.substr(0, pos) + '.gif';
   }
 
-  /** Use the logger to get data about the current conversion */
-  private ffmpegLogger = ({ message }: { type: string, message: string }) => {
-    // console.log('LOG', message);
-
-    // Get the length of the video
-    if (!this.videoLength) {
-      // Format is "Duration: hh:mm:ss.ms,"
-      if (message.includes('Duration: ')) {
-        const begin = message.indexOf(':') + 2; // +2 to remove : and space
-        const end = message.indexOf(',');
-        const time = message.slice(begin, end); // hh:mm:ss.ms
-        this.videoLength = this.toSeconds(time);
-      }
-    }
-
-    // Update the progress bar
-    if (this.conversionInProgress && this.progressBarMode === 'determinate') {
-      if (message.includes('time=')) {
-        const begin = message.indexOf('time=') + 5; // +1 to remove "time="
-        const end = message.indexOf('bitrate') - 1; // -1 to remove preceeding space
-        const time = message.slice(begin, end);
-        this.progressBarValue = this.toSeconds(time) / this.videoLength * 100;
-      }
+  /** Update the progress bar with ffmpeg's progress on the current conversion */
+  private ffmpegProgress = ({ ratio }: { ratio: number }) => {
+    if (this.progressBarMode === 'determinate') {
+      this.progressBarValue = ratio * 100;
     }
   }
 
-  /** Converts a time from hh:mm:ss format to seconds */
-  private toSeconds(time: string) {
-    const arr = (time.split(':')).map((str) => Number(str));
-    return arr[0] * 3600 + arr[1] * 60 + arr[2] * 1;
+  /** Get the metadata from the uploaded video using mediainfo.js */
+  private async getMetadata(mediaInfo: MediaInfo) {
+    // Setup the required callbacks
+    const getSize: GetSizeFunc = () => this.video.size;
+    const readChunk: ReadChunkFunc = (chunkSize, offset) => {
+      return new Promise((resolve, reject) => {
+        const reader = new FileReader();
+        reader.onload = (event: ProgressEvent<FileReader>) => {
+          if (event.target.error) {
+            reject(event.target.error);
+          }
+          resolve(new Uint8Array(event.target.result as ArrayBuffer));
+        };
+        reader.readAsArrayBuffer(this.video.slice(offset, offset + chunkSize));
+      });
+    };
+
+    // Get the metadata
+    const result = await mediaInfo.analyzeData(getSize, readChunk) as any;
+    if (!result) {
+      throw new Error();
+    }
+
+    return {
+      videoDuration: this.videoMetadata.videoDuration = Number(result.media.track[0].Duration),
+      videoFrameRate: this.videoMetadata.videoFrameRate = Number(result.media.track[0].FrameRate),
+      videoHeight: this.videoMetadata.videoHeight = Number(result.media.track[1].Height),
+      videoWidth: this.videoMetadata.videoWidth = Number(result.media.track[1].Width),
+    } as VideoMetadata;
   }
 }

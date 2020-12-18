@@ -9,6 +9,10 @@
     "lint": "ng lint",
     "e2e": "ng e2e"
   },
+  "browser": {
+    "fs": false,
+    "path": false
+  },
   "private": true,
   "dependencies": {
     "@angular/animations": "~9.1.9",
@@ -23,6 +27,7 @@
     "@angular/router": "~9.1.9",
     "@ffmpeg/core": "^0.8.5",
     "@ffmpeg/ffmpeg": "^0.9.6",
+    "mediainfo.js": "^0.1.4",
     "rxjs": "~6.5.4",
     "tslib": "^1.10.0",
     "zone.js": "~0.10.2"

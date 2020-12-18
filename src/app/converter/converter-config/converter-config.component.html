@@ -1,0 +1,83 @@
+<h1 mat-dialog-title>Configuration</h1>
+
+<div mat-dialog-content>
+  <form id="config-form" [formGroup]="form" (ngSubmit)="onConfigSubmit()">
+    <mat-form-field>
+      <mat-label>Gif start time (seconds)</mat-label>
+      <input
+        matInput
+        type="number"
+        autocomplete="off"
+        min="0"
+        (input)="validateGifStartTime()"
+        formControlName="gifStart"
+      />
+    </mat-form-field>
+
+    <mat-form-field>
+      <mat-label>Gif duration (seconds)</mat-label>
+      <input
+        matInput
+        type="number"
+        autocomplete="off"
+        min="0"
+        (input)="validateGifDuration()"
+        formControlName="gifDuration"
+      />
+    </mat-form-field>
+
+    <mat-form-field>
+      <mat-label>Frame rate</mat-label>
+      <input
+        matInput
+        type="number"
+        autocomplete="off"
+        min="1"
+        [max]="input.videoFrameRate"
+        formControlName="gifFrameRate"
+      />
+    </mat-form-field>
+
+    <mat-checkbox
+      formControlName="maintainAspectRatio"
+      (change)="validateAspectRatio()"
+    >
+      Maintain Aspect Ratio
+    </mat-checkbox>
+
+    <mat-form-field>
+      <mat-label>Width (pixels)</mat-label>
+      <input
+        id="width"
+        matInput
+        type="number"
+        autocomplete="off"
+        min="1"
+        (input)="validateAspectRatio($event)"
+        formControlName="gifWidth"
+      />
+    </mat-form-field>
+
+    <mat-form-field>
+      <mat-label>Height (pixels)</mat-label>
+      <input
+        id="height"
+        matInput
+        type="number"
+        autocomplete="off"
+        min="1"
+        (input)="validateAspectRatio($event)"
+        formControlName="gifHeight"
+      />
+    </mat-form-field>
+
+    <mat-checkbox formControlName="enableLooping">Enable Looping</mat-checkbox>
+  </form>
+</div>
+
+<div mat-dialog-actions>
+  <button mat-button (click)="onCancel()">Cancel</button>
+  <button mat-button type="submit" form="config-form" [disabled]="form.invalid">
+    Save
+  </button>
+</div>

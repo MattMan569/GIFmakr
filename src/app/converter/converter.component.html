@@ -16,13 +16,13 @@
     Upload Video File
   </button>
 
-  <video controls [src]="videoURL" *ngIf="videoURL"></video>
+  <video controls loop [src]="videoURL" *ngIf="videoURL"></video>
 
-  <div *ngIf="video">
+  <div *ngIf="videoURL">
     <button
       mat-raised-button
       color="accent"
-      [disabled]="gifURL || conversionInProgress"
+      [disabled]="conversionInProgress"
       (click)="convertToGif()"
     >
       <mat-icon>gif</mat-icon>
@@ -30,7 +30,11 @@
     </button>
 
     <div id="settings-div">
-      <button mat-icon-button>
+      <button
+        mat-icon-button
+        [disabled]="conversionInProgress"
+        (click)="openConfigDialog()"
+      >
         <mat-icon>settings</mat-icon>
       </button>
     </div>
