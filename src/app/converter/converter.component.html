@@ -41,7 +41,12 @@
   </div>
 
   <div id="conversion-progress" *ngIf="conversionInProgress">
-    <p [textContent]="progressMessage"></p>
+    <div>
+      <span>{{ progressMessage }}</span>
+      <div id="conversion-percentage" *ngIf="progressBarMode == 'determinate'">
+        <span>{{ progressBarValue | number: "1.0-0" }}%</span>
+      </div>
+    </div>
     <mat-progress-bar
       [mode]="progressBarMode"
       [value]="progressBarValue"

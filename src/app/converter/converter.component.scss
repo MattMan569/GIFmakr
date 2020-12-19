@@ -8,6 +8,19 @@ img {
 
 #conversion-progress {
   margin-top: 1rem;
+
+  > div {
+    margin-bottom: 1rem;
+  }
+
+  #conversion-percentage {
+    display: inline-block;
+    width: 0;
+
+    span {
+      margin-left: 1rem;
+    }
+  }
 }
 
 #settings-div {
