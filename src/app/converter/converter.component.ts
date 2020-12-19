@@ -155,7 +155,9 @@ export class ConverterComponent implements OnInit {
   /** Update the progress bar with ffmpeg's progress on the current conversion */
   private ffmpegProgress = ({ ratio }: { ratio: number }) => {
     if (this.progressBarMode === 'determinate') {
-      this.progressBarValue = ratio * 100;
+      // FFmpeg bug
+      // Ratio is sometimes reported as -721266825.4270834
+      this.progressBarValue = ratio < 0 ? 0 : ratio * 100;
     }
   }
 
