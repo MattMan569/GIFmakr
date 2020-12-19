@@ -75,7 +75,6 @@ export class ConverterComponent implements OnInit {
         return;
       }
 
-      console.log(result);
       this.config = result;
     });
   }

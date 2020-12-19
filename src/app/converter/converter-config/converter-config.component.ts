@@ -167,7 +167,6 @@ export class ConverterConfigComponent implements OnInit {
    * Close the dialog and send the form data back to the caller
    */
   onConfigSubmit() {
-    console.log(this.form.value);
     // Merge values not on the form into the return value
     this.dialogRef.close({ ...this.input, ...this.form.value });
   }
