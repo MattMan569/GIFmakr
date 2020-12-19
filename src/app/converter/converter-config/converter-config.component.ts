@@ -114,6 +114,10 @@ export class ConverterConfigComponent implements OnInit {
     }
   }
 
+  /**
+   * Validate that the aspect ratio of the generated gif is the
+   * same as the source video, given the user's chosen dimensions
+   */
   validateAspectRatio(event?: Event) {
     // Not maintaining aspect ratio
     if (!this.form.controls.maintainAspectRatio.value) {
