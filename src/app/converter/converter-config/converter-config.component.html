@@ -30,10 +30,13 @@
       <mat-label>Frame rate</mat-label>
       <input
         matInput
+        matTooltip="Cannot exceed source frame rate of {{
+          input.videoFrameRate
+        }}"
         type="number"
         autocomplete="off"
         min="1"
-        [max]="input.videoFrameRate"
+        (input)="validateFrameRate()"
         formControlName="gifFrameRate"
       />
     </mat-form-field>

@@ -115,6 +115,19 @@ export class ConverterConfigComponent implements OnInit {
   }
 
   /**
+   * Validate that the input framerate does not exceed the frame rate of the source video.
+   * While possible, the result
+   */
+  validateFrameRate() {
+    const gifFrameRate = this.form.controls.gifFrameRate;
+
+    if (gifFrameRate.value > this.input.videoFrameRate) {
+      gifFrameRate.patchValue(this.input.videoFrameRate);
+      gifFrameRate.updateValueAndValidity();
+    }
+  }
+
+  /**
    * Validate that the aspect ratio of the generated gif is the
    * same as the source video, given the user's chosen dimensions
    */
