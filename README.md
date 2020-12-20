@@ -8,7 +8,7 @@ This project was generated with [Angular CLI](https://github.com/angular/angular
 
 ## URL
 
-Coming soon...
+[GIFmakr](https://gifmakr-d3omv.ondigitalocean.app/) - Hosted by DigitalOcean
 
 ## Getting Started
 
