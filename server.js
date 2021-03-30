@@ -9,7 +9,7 @@ app.use((req, res, next) => {
     res.set({
             'Cross-Origin-Opener-Policy': 'same-origin',
             'Cross-Origin-Embedder-Policy': 'require-corp',
-        });
+    });
     next();
 })
 app.use(express.static(__dirname + '/dist/GIFmakr'));
